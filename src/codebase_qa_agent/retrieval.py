@@ -7,6 +7,7 @@ from typing import Literal
 
 from codebase_qa_agent.bm25_index import BM25Index
 from codebase_qa_agent.langchain_rag import open_chroma_vectorstore, vector_search
+from codebase_qa_agent.settings import Settings, get_settings
 from codebase_qa_agent.retrieval_metrics import hit_in_top_k as _hit_in_top_k
 from codebase_qa_agent.schemas import Chunk, RetrievalHit
 
@@ -38,10 +39,12 @@ class RetrievalEngine:
         embedding_model_name: str,
         *,
         mode: RetrievalMode = "hybrid",
+        settings: Settings | None = None,
     ) -> None:
         self._chroma_path = chroma_path
         self._mode: RetrievalMode = mode
-        self._store = open_chroma_vectorstore(chroma_path, embedding_model_name)
+        settings = settings or get_settings()
+        self._store = open_chroma_vectorstore(chroma_path, settings)
         self._bm25 = BM25Index.load(chroma_path)
 
     def search(self, query: str, *, top_k: int = 5, chunk_type: str | None = None) -> list[RetrievalHit]:

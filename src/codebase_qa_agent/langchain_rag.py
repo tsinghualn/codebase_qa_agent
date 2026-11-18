@@ -2,20 +2,17 @@
 
 from __future__ import annotations
 
+import shutil
 from pathlib import Path
-from typing import TYPE_CHECKING
 
-import chromadb
-from chromadb.config import Settings as ChromaSettings
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from langchain_huggingface import HuggingFaceEmbeddings
 
 from codebase_qa_agent.chroma_store import COLLECTION_NAME
+from codebase_qa_agent.index_meta import read_embedding_model, write_index_meta
 from codebase_qa_agent.schemas import Chunk
-
-if TYPE_CHECKING:
-    from langchain_core.embeddings import Embeddings
+from codebase_qa_agent.settings import Settings, get_settings
 
 
 def get_embeddings(model_name: str) -> HuggingFaceEmbeddings:
@@ -24,6 +21,10 @@ def get_embeddings(model_name: str) -> HuggingFaceEmbeddings:
         model_kwargs={"device": "cpu"},
         encode_kwargs={"normalize_embeddings": True},
     )
+
+
+def resolve_embedding_model(settings: Settings) -> str:
+    return read_embedding_model(settings.chroma_path, settings.embedding_model)
 
 
 def chunks_to_documents(chunks: list[Chunk]) -> list[Document]:
@@ -49,42 +50,36 @@ def document_to_chunk(doc: Document, chunk_id: str | None = None) -> Chunk:
     )
 
 
-def _chromadb_client(chroma_path: Path) -> chromadb.ClientAPI:
-    chroma_path.mkdir(parents=True, exist_ok=True)
-    return chromadb.PersistentClient(
-        path=str(chroma_path),
-        settings=ChromaSettings(anonymized_telemetry=False),
-    )
-
-
 def reset_vector_collection(chroma_path: Path) -> None:
-    client = _chromadb_client(chroma_path)
-    try:
-        client.delete_collection(COLLECTION_NAME)
-    except Exception:
-        pass
+    """Remove prior Chroma state (avoids 'different settings' after failed ingest)."""
+    if chroma_path.is_dir():
+        shutil.rmtree(chroma_path)
+    chroma_path.mkdir(parents=True, exist_ok=True)
 
 
 def ingest_into_chroma(
     chroma_path: Path,
     chunks: list[Chunk],
-    embedding_model_name: str,
+    settings: Settings,
 ) -> Chroma:
     reset_vector_collection(chroma_path)
-    embeddings = get_embeddings(embedding_model_name)
+    model = settings.embedding_model
+    embeddings = get_embeddings(model)
+    write_index_meta(chroma_path, embedding_model=model)
     documents = chunks_to_documents(chunks)
-    store = Chroma.from_documents(
+    return Chroma.from_documents(
         documents=documents,
         embedding=embeddings,
         collection_name=COLLECTION_NAME,
         persist_directory=str(chroma_path),
         ids=[c.chunk_id for c in chunks],
     )
-    return store
 
 
-def open_chroma_vectorstore(chroma_path: Path, embedding_model_name: str) -> Chroma:
-    embeddings = get_embeddings(embedding_model_name)
+def open_chroma_vectorstore(chroma_path: Path, settings: Settings | None = None) -> Chroma:
+    settings = settings or get_settings()
+    model = resolve_embedding_model(settings)
+    embeddings = get_embeddings(model)
     return Chroma(
         collection_name=COLLECTION_NAME,
         embedding_function=embeddings,
@@ -107,7 +102,6 @@ def vector_search(
     for doc, score in pairs:
         cid = str((doc.metadata or {}).get("chunk_id", ""))
         chunk = document_to_chunk(doc, chunk_id=cid)
-        # Chroma returns distance (lower is better); map to a ascending relevance score.
         relevance = 1.0 / (1.0 + float(score))
         hits.append((chunk, relevance))
     return hits

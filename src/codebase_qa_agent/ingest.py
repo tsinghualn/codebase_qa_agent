@@ -32,7 +32,7 @@ def build_index(*, write_pin: bool = False) -> int:
         return 1
 
     print(f"Chunked {len(files)} files → {len(chunks)} chunks")
-    ingest_into_chroma(settings.chroma_path, chunks, settings.embedding_model)
+    ingest_into_chroma(settings.chroma_path, chunks, settings)
     BM25Index(chunks).save(settings.chroma_path)
     print(f"Index written to {settings.chroma_path} (LangChain HuggingFace → Chroma)")
     return 0
