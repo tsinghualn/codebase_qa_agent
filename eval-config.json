@@ -1,0 +1,7 @@
+{
+  "top_k": 5,
+  "retrieval_mode": "hybrid",
+  "context_precision_min": 0.8,
+  "require_golden_count_min": 15,
+  "faithfulness_with_llm_judge": false
+}

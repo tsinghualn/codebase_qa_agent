@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "GoldenEvalCase",
+  "type": "object",
+  "required": ["id", "question", "expected_files", "reference_answer"],
+  "properties": {
+    "id": { "type": "string" },
+    "question": { "type": "string" },
+    "expected_files": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Repo-relative paths that should appear in retrieval or citations"
+    },
+    "reference_answer": {
+      "type": "string",
+      "description": "Short ground-truth answer you wrote from reading the pinned commit"
+    },
+    "unanswerable": {
+      "type": "boolean",
+      "default": false,
+      "description": "If true, correct behavior is a grounded refusal, not a fabricated answer"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    }
+  }
+}

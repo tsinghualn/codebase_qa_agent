@@ -1,0 +1,56 @@
+[project]
+name = "codebase-qa-agent"
+version = "0.1.0"
+description = "LangGraph codebase Q&A agent with citations, hybrid RAG, and evals"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+dependencies = [
+    "python-dotenv>=1.0.1",
+    "pyyaml>=6.0.2",
+    "chromadb>=0.5.23",
+    "rank-bm25>=0.2.2",
+    "langchain-core>=0.3.0",
+    "langchain-chroma>=0.2.0",
+    "langchain-huggingface>=0.1.0",
+    "langchain-text-splitters>=0.3.0",
+    "sentence-transformers>=3.3.0",
+    "numpy>=1.26.4,<2",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.0",
+    "ruff>=0.8.0",
+]
+
+# Milestone 1+ (install when you reach ingest/retrieval/agent)
+ml = [
+    "chromadb>=0.5.23",
+    "langgraph>=0.2.60",
+    "langchain-core>=0.3.0",
+    "langchain-openai>=0.2.0",
+    "langchain-anthropic>=0.3.0",
+    "rank-bm25>=0.2.2",
+    "sentence-transformers>=3.3.0",
+    "fastmcp>=2.0.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+codebase-ingest = "codebase_qa_agent.ingest:main"
+codebase-query = "codebase_qa_agent.query_cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/codebase_qa_agent"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"

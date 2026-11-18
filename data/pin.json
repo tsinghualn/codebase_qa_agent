@@ -1,0 +1,17 @@
+{
+  "repo_url": "https://github.com/langchain-ai/langgraph",
+  "commit_sha": "02f2c2e6c992ffccce9e9129781fdd04f015c6fa",
+  "scope_paths": [
+    "libs/langgraph",
+    "docs"
+  ],
+  "exclude_globs": [
+    "**/tests/**",
+    "**/test_*.py",
+    "**/__pycache__/**",
+    "**/node_modules/**",
+    "**/.git/**"
+  ],
+  "max_file_bytes": 204800,
+  "notes": "Update commit_sha after cloning; golden evals are written against this exact commit."
+}

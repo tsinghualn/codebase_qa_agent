@@ -1,0 +1,22 @@
+# Secrets — never commit real API keys
+.env
+.env.*
+!.env.example
+
+# Local Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+dist/
+*.egg-info/
+
+# Corpus clone and build artifacts (pin.json is committed)
+data/corpus/
+data/chroma/
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
