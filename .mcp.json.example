@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "langgraph-codebase": {
+      "command": "${workspaceFolder}/.venv/bin/python",
+      "args": ["-m", "codebase_qa_agent.mcp_server"],
+      "env": {
+        "CHROMA_PATH": "${workspaceFolder}/data/chroma",
+        "RETRIEVAL_MODE": "hybrid"
+      }
+    }
+  }
+}

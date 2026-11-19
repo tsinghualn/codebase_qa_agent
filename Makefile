@@ -4,7 +4,7 @@ VENV := .venv
 PY := $(VENV)/bin/python
 
 help:
-	@echo "Targets: install, ingest, query, test, eval, check-env"
+	@echo "Targets: install, ingest, query, ask, mcp, test, eval, check-env"
 
 install:
 	uv venv $(VENV)
@@ -20,6 +20,12 @@ ingest:
 
 query:
 	@$(PY) -m codebase_qa_agent.query_cli "$(Q)"
+
+ask:
+	@$(PY) -m codebase_qa_agent.agent_cli "$(Q)"
+
+mcp:
+	$(PY) -m codebase_qa_agent.mcp_server
 
 test:
 	$(PY) -m pytest -q

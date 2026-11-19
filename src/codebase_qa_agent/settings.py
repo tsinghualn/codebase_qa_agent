@@ -14,7 +14,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 def load_env() -> None:
     """Load `.env` from project root if present. Safe to call multiple times."""
     env_path = PROJECT_ROOT / ".env"
-    load_dotenv(env_path, override=False)
+    # `.env` is source of truth for local dev (wins over stale shell exports).
+    load_dotenv(env_path, override=True)
 
 
 @dataclass(frozen=True, slots=True)
@@ -30,6 +31,8 @@ class Settings:
     chroma_path: Path
     embedding_model: str
     retrieval_mode: str
+    rerank_enabled: bool
+    rerank_model: str
 
     @property
     def has_llm(self) -> bool:
@@ -54,4 +57,7 @@ def get_settings() -> Settings:
         embedding_model=os.getenv("EMBEDDING_MODEL")
         or "sentence-transformers/all-MiniLM-L6-v2",
         retrieval_mode=(os.getenv("RETRIEVAL_MODE") or "hybrid").strip().lower(),
+        rerank_enabled=(os.getenv("RERANK_ENABLED") or "false").strip().lower()
+        in ("1", "true", "yes", "on"),
+        rerank_model=os.getenv("RERANK_MODEL") or "cross-encoder/ms-marco-MiniLM-L-6-v2",
     )

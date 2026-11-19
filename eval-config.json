@@ -1,7 +1,10 @@
 {
   "top_k": 5,
   "retrieval_mode": "hybrid",
-  "context_precision_min": 0.8,
+  "top3_expected_file_hit_rate_min": 0.8,
   "require_golden_count_min": 15,
-  "faithfulness_with_llm_judge": false
+  "faithfulness_with_llm_judge": false,
+  "compare_retrieval_modes": true,
+  "eval_modes": ["vector", "hybrid", "hybrid+rerank"],
+  "production_eval_mode": "hybrid"
 }

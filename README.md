@@ -9,7 +9,10 @@ LangGraph agent that answers questions about a **pinned** public repo (LangGraph
 | Milestone | Status |
 |-----------|--------|
 | M0 Scaffold + golden set | Done (refine golden answers at your pin) |
-| M1 Ingest + retrieval | Chroma + BM25 hybrid |
+| M1 Ingest + retrieval | Done |
+| M2 Agent + citations | Done — `make ask` |
+| M3 Rerank + eval comparison | `make eval` → `eval-results.md` |
+| M4 FastMCP server | `make mcp` (stdio) — see [MCP](#mcp-cursor--other-clients) |
 
 ## Where to put API keys (security)
 
@@ -48,9 +51,32 @@ uv venv .venv && source .venv/bin/activate
 make install
 make ingest   # clone pinned repo, chunk, embed → data/chroma/ (needs ~5–15 min first run)
 make query Q="How does checkpointing work?"
-make eval     # retrieval metrics on golden set
+make ask Q="How does checkpointing work?"   # cited answer (needs OPENAI_API_KEY)
+make eval     # vector vs hybrid vs hybrid+rerank (writes eval-results.md)
 make test
+make mcp        # FastMCP stdio server (after ingest)
 ```
+
+### MCP (Cursor & other clients)
+
+The MCP server exposes **`search_code`**, **`search_docs`**, and **`read_file`** over the same hybrid index and pinned corpus as `make query` / `make ask`. No LLM key is required for MCP tools.
+
+1. `make install` and `make ingest` so `data/chroma/` exists.
+2. Copy [`.mcp.json.example`](.mcp.json.example) into your Cursor MCP config (or merge the `langgraph-codebase` entry). Adjust the Python path if you do not use `.venv` at the project root.
+3. Restart MCP / Cursor. Tools should appear as **langgraph-codebase**.
+
+Local smoke test (server blocks on stdio — Ctrl+C to exit):
+
+```bash
+make mcp
+# or: codebase-mcp
+```
+
+Environment variables (`CHROMA_PATH`, `RETRIEVAL_MODE`, `EMBEDDING_MODEL`, etc.) are read from `.env` via `get_settings()`, same as the CLI.
+
+### Retrieval stack (M3)
+
+Default: **hybrid** (BM25 + vectors + RRF). Cross-encoder rerank is optional (`RERANK_ENABLED=true`); on our LangGraph golden set it **lowered** top-3 file hit rate vs hybrid alone — see [`eval-results.md`](eval-results.md).
 
 ### Vector store
 

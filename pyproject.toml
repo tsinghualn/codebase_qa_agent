@@ -18,6 +18,9 @@ dependencies = [
     "transformers>=4.41.0,<4.50.0",
     "torch>=2.2.0,<2.6.0",
     "numpy>=1.26.4,<2",
+    "langgraph>=0.2.60",
+    "langchain-openai>=0.2.0",
+    "langchain-anthropic>=0.3.0",
 ]
 
 [project.optional-dependencies]
@@ -45,6 +48,8 @@ build-backend = "hatchling.build"
 [project.scripts]
 codebase-ingest = "codebase_qa_agent.ingest:main"
 codebase-query = "codebase_qa_agent.query_cli:main"
+codebase-ask = "codebase_qa_agent.agent_cli:main"
+codebase-mcp = "codebase_qa_agent.mcp_server:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/codebase_qa_agent"]
