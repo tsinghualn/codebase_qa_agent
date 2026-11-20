@@ -4,11 +4,11 @@ VENV := .venv
 PY := $(VENV)/bin/python
 
 help:
-	@echo "Targets: install, ingest, query, ask, mcp, test, eval, check-env"
+	@echo "Targets: install, ingest, query, ask, ui, mcp, test, eval, check-env"
 
 install:
 	uv venv $(VENV)
-	uv pip install -e ".[dev,ml]"
+	uv pip install -e ".[dev,ml,ui]"
 	@test -f .env || cp .env.example .env
 	@echo "Created .env from .env.example if missing — add your API keys locally."
 
@@ -26,6 +26,9 @@ ask:
 
 mcp:
 	$(PY) -m codebase_qa_agent.mcp_server
+
+ui:
+	$(PY) -m codebase_qa_agent.gradio_app
 
 test:
 	$(PY) -m pytest -q

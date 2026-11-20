@@ -43,6 +43,13 @@ class Settings:
         return bool(self.openai_api_key or self.anthropic_api_key)
 
 
+def _resolve_project_path(raw: str | None, default: Path) -> Path:
+    path = Path(raw) if raw else default
+    if not path.is_absolute():
+        path = PROJECT_ROOT / path
+    return path.resolve()
+
+
 def get_settings() -> Settings:
     load_env()
     provider = (os.getenv("LLM_PROVIDER") or "openai").strip().lower()
@@ -53,7 +60,10 @@ def get_settings() -> Settings:
         openai_model=os.getenv("OPENAI_MODEL") or "gpt-4o-mini",
         anthropic_api_key=os.getenv("ANTHROPIC_API_KEY") or None,
         anthropic_model=os.getenv("ANTHROPIC_MODEL") or "claude-sonnet-4-20250514",
-        chroma_path=Path(os.getenv("CHROMA_PATH") or (PROJECT_ROOT / "data" / "chroma")),
+        chroma_path=_resolve_project_path(
+            os.getenv("CHROMA_PATH"),
+            PROJECT_ROOT / "data" / "chroma",
+        ),
         embedding_model=os.getenv("EMBEDDING_MODEL")
         or "sentence-transformers/all-MiniLM-L6-v2",
         retrieval_mode=(os.getenv("RETRIEVAL_MODE") or "hybrid").strip().lower(),

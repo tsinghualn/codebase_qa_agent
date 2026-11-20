@@ -41,6 +41,10 @@ ml = [
     "fastmcp>=2.0.0",
 ]
 
+ui = [
+    "gradio>=5.23.0,<6",
+]
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
@@ -50,6 +54,7 @@ codebase-ingest = "codebase_qa_agent.ingest:main"
 codebase-query = "codebase_qa_agent.query_cli:main"
 codebase-ask = "codebase_qa_agent.agent_cli:main"
 codebase-mcp = "codebase_qa_agent.mcp_server:main"
+codebase-ui = "codebase_qa_agent.gradio_app:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/codebase_qa_agent"]
